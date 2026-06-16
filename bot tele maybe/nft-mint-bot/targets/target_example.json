@@ -1,0 +1,28 @@
+{
+  "project_name": "Nama Project NFT",
+  "chain": "ethereum",
+
+  "contract_address": "0xYourContractAddressHere",
+
+  "mint": {
+    "function_name": "mint",
+    "quantity": 1,
+    "price_eth": "0.08",
+
+    "merkle_proof": []
+  },
+
+  "sale_check": {
+    "function_name": "saleIsActive"
+  },
+
+  "schedule": {
+    "start_time": "2025-01-20 20:00:00",
+    "timezone": "Asia/Jakarta"
+  },
+
+  "gas": {
+    "max_fee_gwei": 50,
+    "priority_fee_gwei": 2
+  }
+}

@@ -1,0 +1,71 @@
+[
+  {
+    "comment": "=== FUNGSI CEK STATUS SALE (pilih salah satu sesuai kontrak) ===",
+    "inputs": [],
+    "name": "saleIsActive",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "mintingOpen",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "publicSaleActive",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "whitelistSaleActive",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "comment": "=== FUNGSI MINT UMUM ===",
+    "inputs": [
+      { "internalType": "uint256", "name": "quantity", "type": "uint256" }
+    ],
+    "name": "mint",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "numberOfTokens", "type": "uint256" }
+    ],
+    "name": "mintNFT",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "comment": "=== FUNGSI MINT WHITELIST (dengan Merkle proof) ===",
+    "inputs": [
+      { "internalType": "uint256", "name": "quantity", "type": "uint256" },
+      { "internalType": "bytes32[]", "name": "merkleProof", "type": "bytes32[]" }
+    ],
+    "name": "whitelistMint",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "bytes32[]", "name": "proof", "type": "bytes32[]" },
+      { "internalType": "uint256", "name": "quantity", "type": "uint256" }
+    ],
+    "name": "presaleMint",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  }
+]
