@@ -1,99 +1,135 @@
-# Deploy ke VPS
+# 🤖 Telegram Airdrop & NFT Mint Bot
 
-## Struktur deploy
+Dua bot otomatis dalam satu repo:
+- **airdrop-bot** — kerjakan task airdrop di Telegram secara otomatis
+- **nft-mint-bot** — auto mint NFT saat whitelist/guaranteed mint window buka
+
+---
+
+## 📦 Struktur Repo
 
 ```
-deploy/
-├── upload.sh            ← upload file ke VPS dari laptop
-├── setup.sh             ← install Python & dependencies di VPS
-├── install-services.sh  ← install systemd service (airdrop-bot)
-└── mint.sh              ← jalankan nft-mint-bot per target
+├── airdrop-bot/         ← Bot airdrop Telegram
+├── nft-mint-bot/        ← Bot mint NFT on-chain
+├── deploy/              ← Script deploy ke VPS
+├── .gitignore
+└── README.md
 ```
 
 ---
 
-## Step by Step
+## 🤖 Airdrop Bot
 
-### Di laptop — upload ke VPS
+Bot otomatis untuk mengerjakan task airdrop di Telegram. Support bot chat biasa maupun Mini App (WebApp).
+
+### Fitur
+- **Multi-bot** — jalankan banyak bot airdrop sekaligus
+- **WebApp support** — buka Mini App via Playwright headless browser
+- **Auto-detect tombol** — cari tombol Claim/Farm/Collect otomatis tanpa hardcode
+- **Multi-akun** — banyak akun Telegram jalan paralel
+- **Scheduler** — task otomatis berulang tiap X menit
+- **Database** — tracking history claim, hindari double claim
+
+### Setup
 ```bash
-# Edit dulu VPS_USER dan VPS_IP di deploy/upload.sh
-bash deploy/upload.sh
-```
-
-### Di VPS — setup awal (sekali saja)
-```bash
-ssh user@ip-vps-kamu
-cd ~/bots
-
-# Install dependencies
-bash deploy/setup.sh
-
-# Isi .env masing-masing bot
-cp airdrop-bot/.env.example airdrop-bot/.env
-nano airdrop-bot/.env
-
-cp nft-mint-bot/.env.example nft-mint-bot/.env
-nano nft-mint-bot/.env
-
-# Tambah akun Telegram untuk airdrop-bot
 cd airdrop-bot
-source venv/bin/activate
+pip install -r requirements.txt
+python -m playwright install chromium
+
+cp .env.example .env
+# isi API_ID & API_HASH dari https://my.telegram.org
+
 python accounts/add_account.py
-deactivate
-cd ..
+python main.py
+```
 
-# Install & start service
+### Tambah Bot Baru
+1. Copy `airdrop-bot/bots/bot_example.py` → `bots/bot_NAMA.py`
+2. Isi `BOT_NAME`, `BOT_USERNAME`, set `IS_WEBAPP = True/False`
+3. Daftarkan di `bots/__init__.py`
+
+---
+
+## 🎨 NFT Mint Bot
+
+Bot otomatis mint NFT untuk whitelist/guaranteed mint. Monitor jadwal + polling kontrak, eksekusi mint, notifikasi Telegram.
+
+### Fitur
+- **Multi-chain EVM** — Ethereum, Polygon, Base, Arbitrum, Optimism, BSC, Avalanche
+- **Jadwal + konfirmasi kontrak** — idle → standby H-5 menit → polling tiap 3 detik
+- **Whitelist/Merkle proof** — support WL mint dengan proof
+- **Auto-retry** — retry otomatis kalau transaksi gagal
+- **Notifikasi Telegram** — hasil mint langsung ke HP
+
+### Setup
+```bash
+cd nft-mint-bot
+pip install -r requirements.txt
+
+cp .env.example .env
+# isi PRIVATE_KEY, INFURA_KEY, TG_BOT_TOKEN, TG_CHAT_ID
+```
+
+### Jalankan per target
+```bash
+# Copy & edit file target
+cp targets/target_example.json targets/nama_project.json
+# edit contract address, fungsi mint, jadwal, harga
+
+python main.py targets/nama_project.json
+```
+
+---
+
+## 🖥️ Deploy ke VPS (Debian/Ubuntu)
+
+```bash
+# Upload ke VPS
+scp -r . user@ip-vps:~/bots/
+
+# Di VPS
+bash deploy/setup.sh
 bash deploy/install-services.sh
-```
 
----
-
-## Mengelola airdrop-bot (systemd)
-
-```bash
-# Cek status
-sudo systemctl status airdrop-bot
-
-# Lihat log live
-sudo journalctl -u airdrop-bot -f
-
-# Restart
-sudo systemctl restart airdrop-bot
-
-# Stop
-sudo systemctl stop airdrop-bot
-```
-
-Bot otomatis restart kalau crash, dan otomatis jalan lagi kalau VPS reboot.
-
----
-
-## Menjalankan nft-mint-bot per target
-
-```bash
-# Dari folder ~/bots di VPS
+# Jalankan nft-mint-bot per target
 bash deploy/mint.sh targets/nama_project.json
+```
 
-# Lihat log live
-tmux attach -t mint-nama_project
+### Kelola airdrop-bot (systemd)
+```bash
+sudo systemctl status airdrop-bot
+sudo journalctl -u airdrop-bot -f    # log live
+sudo systemctl restart airdrop-bot
+```
 
-# Detach (bot tetap jalan di background)
-# Tekan Ctrl+B lalu D
-
-# List semua session yang berjalan
-tmux ls
-
-# Stop bot
+### Kelola nft-mint-bot (tmux)
+```bash
+tmux attach -t mint-nama_project     # lihat log
+tmux ls                              # list session
 tmux kill-session -t mint-nama_project
 ```
 
 ---
 
-## Kenapa airdrop-bot pakai systemd, nft-mint-bot pakai tmux?
+## ⚙️ Environment Variables
 
-| | airdrop-bot | nft-mint-bot |
-|---|---|---|
-| Jalan | Terus-menerus | Per target, sampai mint selesai |
-| Argumen | Tidak butuh | Butuh file target JSON |
-| Auto-restart | ✅ systemd | Manual (mint selesai = stop) |
-| Cocok untuk | Service permanen | Task sekali jalan |
+### airdrop-bot `.env`
+| Key | Keterangan |
+|---|---|
+| `API_ID` | Dari [my.telegram.org](https://my.telegram.org) |
+| `API_HASH` | Dari [my.telegram.org](https://my.telegram.org) |
+| `TASK_INTERVAL` | Interval task dalam menit (default: 60) |
+
+### nft-mint-bot `.env`
+| Key | Keterangan |
+|---|---|
+| `PRIVATE_KEY` | Private key wallet |
+| `INFURA_KEY` | Dari [infura.io](https://infura.io) |
+| `TG_BOT_TOKEN` | Dari [@BotFather](https://t.me/BotFather) |
+| `TG_CHAT_ID` | Dari [@userinfobot](https://t.me/userinfobot) |
+
+---
+
+## ⚠️ Disclaimer
+
+Penggunaan bot otomatis mungkin melanggar Terms of Service platform terkait. Jaga keamanan private key dan credentials kamu. Gunakan dengan risiko sendiri.
