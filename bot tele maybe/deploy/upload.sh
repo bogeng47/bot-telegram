@@ -7,8 +7,8 @@
 # =============================================================
 
 VPS_USER="root"          # ganti dengan user VPS kamu
-VPS_IP="IP vps mu"     # ganti dengan IP VPS kamu
-REMOTE_DIR="root/bots"
+VPS_IP="IP_VPS_MU"     # ganti dengan IP VPS kamu
+REMOTE_DIR="~/bots"
 
 echo "=== Upload ke VPS $VPS_USER@$VPS_IP ==="
 
