@@ -133,3 +133,5 @@ tmux kill-session -t mint-nama_project
 ## ⚠️ Disclaimer
 
 Penggunaan bot otomatis mungkin melanggar Terms of Service platform terkait. Jaga keamanan private key dan credentials kamu. Gunakan dengan risiko sendiri.
+
+dan juga project ini masih dalam pembangunan dan 100% menggunakn ai Kiro dalam script dan logikanya
